@@ -44,15 +44,26 @@
         <button onclick="sendMessage()">Send</button>
     </div>
     <script>
-        function sendMessage() {
-            const input = document.getElementById("userInput");
-            const messages = document.getElementById("messages");
-            const message = input.value;
-            if (message.trim() !== "") {
-                messages.innerHTML += `<div><strong>You:</strong> ${message}</div>`;
-                input.value = "";
-            }
+    async function sendMessage() {
+        const input = document.getElementById("userInput");
+        const messages = document.getElementById("messages");
+        const message = input.value;
+        
+        if (message.trim() !== "") {
+            // Display user message
+            messages.innerHTML += `<div><strong>You:</strong> ${message}</div>`;
+
+            // Send to backend
+            const response = await fetch(`http://127.0.0.1:8000/chat?msg=${encodeURIComponent(message)}`);
+            const data = await response.json();
+
+            // Display bot response
+            messages.innerHTML += `<div><strong>Bot:</strong> ${data.reply}</div>`;
+
+            input.value = "";
         }
-    </script>
+    }
+</script>
+
 </body>
 </html>
