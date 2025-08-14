@@ -11,7 +11,6 @@
   </style>
 </head>
 <body>
-<<<<<<< HEAD
   <div id="chatbox">
     <div id="messages"></div>
     <input type="text" id="userInput" placeholder="Type a message" onkeydown="if(event.key==='Enter') sendMessage()" />
@@ -38,34 +37,5 @@
       }
     }
   </script>
-=======
-    <div class="chat-container">
-        <h2>Finance Chatbot</h2>
-        <div class="messages" id="messages"></div>
-        <input type="text" id="userInput" placeholder="Type a message...">
-        <button onclick="sendMessage()">Send</button>
-    </div>
-    <script>
-  const API_BASE = "http://127.0.0.1:8000";
-
-  async function sendMessage() {
-    const input = document.getElementById("userInput");
-    const messages = document.getElementById("messages");
-    const message = input.value;
-
-    if (message.trim() !== "") {
-      messages.innerHTML += `<div><strong>You:</strong> ${message}</div>`;
-
-      const resp = await fetch(`${API_BASE}/chat?msg=${encodeURIComponent(message)}`);
-      const data = await resp.json();
-
-      messages.innerHTML += `<div><strong>Bot:</strong> ${data.reply}</div>`;
-      input.value = "";
-    }
-  }
-</script>
-
-
->>>>>>> adcad852e84b5708b8e2d8ee078977743efa2911
 </body>
 </html>
