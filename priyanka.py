@@ -1,1 +1,1 @@
-git puprint("hello world")
+print("hello world")
