@@ -1,16 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from transformers import pipeline
 
 app = FastAPI()
 
-# CORS so your browser page (index.html) can call the API during dev
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],      # OK for local dev; we'll tighten later
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Load a small text generation model
+generator = pipeline("text-generation", model="gpt2")  # Small model
 
 @app.get("/hello")
 def hello():
@@ -18,5 +21,7 @@ def hello():
 
 @app.get("/chat")
 def chat(msg: str):
-    # simple echo for now
-    return {"reply": f"You said: {msg}. This is a test response from backend."}
+    # Generate text
+    result = generator(msg, max_length=50, num_return_sequences=1)
+    reply = result[0]['generated_text']
+    return {"reply": reply}
