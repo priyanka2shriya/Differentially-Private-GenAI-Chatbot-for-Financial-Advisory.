@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 load_dotenv()  # loads OPENAI_API_KEY from .env
+print("DEBUG: OPENAI_API_KEY present?", os.getenv("OPENAI_API_KEY") is not None)
+
 client = OpenAI()  # uses env var by default
 
 app = FastAPI()
