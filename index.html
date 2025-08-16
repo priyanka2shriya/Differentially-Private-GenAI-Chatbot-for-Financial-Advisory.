@@ -17,25 +17,40 @@
     <button onclick="sendMessage()">Send</button>
   </div>
 
-  <script>
-    const API_BASE = "http://127.0.0.1:8000";
+<script>
+  const API_BASE = "http://127.0.0.1:8000";
 
-    async function sendMessage() {
-      const input = document.getElementById("userInput");
-      const messages = document.getElementById("messages");
-      const message = input.value;
+  function addMsg(text, cls) {
+    const messages = document.getElementById("messages");
+    const div = document.createElement("div");
+    div.className = "msg " + cls;
+    div.textContent = text;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    return div;
+  }
 
-      if (message.trim() !== "") {
-        messages.innerHTML += `<div class="msg user">${message}</div>`;
+  async function sendMessage() {
+    const input = document.getElementById("userInput");
+    const text = input.value.trim();
+    if (!text) return;
 
-        const resp = await fetch(`${API_BASE}/chat?msg=${encodeURIComponent(message)}`);
-        const data = await resp.json();
+    addMsg(text, "user");
+    input.value = "";
 
-        messages.innerHTML += `<div class="msg bot">${data.reply}</div>`;
-        input.value = "";
-        messages.scrollTop = messages.scrollHeight;
-      }
+    // temporary bot bubble while waiting
+    const thinkingBubble = addMsg("Thinking…", "bot");
+
+    try {
+      const resp = await fetch(`${API_BASE}/chat?msg=${encodeURIComponent(text)}`);
+      if (!resp.ok) throw new Error("Network response was not ok");
+      const data = await resp.json();
+
+      // replace the "Thinking…" text
+      thinkingBubble.textContent = data.reply || "Sorry, I couldn't generate a reply.";
+    } catch (err) {
+      thinkingBubble.textContent = "Error contacting the server. Try again.";
+      console.error(err);
     }
-  </script>
-</body>
-</html>
+  }
+</script>
