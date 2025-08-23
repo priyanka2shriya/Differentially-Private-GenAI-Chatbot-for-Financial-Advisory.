@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from transformers import pipeline
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
 app = FastAPI()
 
@@ -12,13 +12,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load a small free model (first time takes time to download)
-generator = pipeline("text-generation", model="distilgpt2")
+# Load a real, free open-source chat model
+MODEL_NAME = "HuggingFaceH4/zephyr-7b-alpha"
 
-SYSTEM_PROMPT = (
-    "You are a helpful chatbot for financial education. "
-    "Answer simply, avoid giving personal investment or legal advice."
-)
+print("Loading model, this may take a few minutes...")
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+model = AutoModelForCausalLM.from_pretrained(MODEL_NAME)
+chatbot = pipeline("text-generation", model=model, tokenizer=tokenizer)
 
 @app.get("/hello")
 def hello():
@@ -27,10 +27,15 @@ def hello():
 @app.get("/chat")
 def chat(msg: str):
     try:
-        result = generator(f"{SYSTEM_PROMPT} User: {msg}\nBot:", 
-                           max_length=80, num_return_sequences=1)
-        reply = result[0]['generated_text'].split("Bot:")[-1].strip()
+        response = chatbot(
+            msg,
+            max_length=200,
+            num_return_sequences=1,
+            do_sample=True,
+            temperature=0.7
+        )
+        reply = response[0]["generated_text"]
         return {"reply": reply}
     except Exception as e:
-        print(f"Error: {e}")
-        return {"reply": "Sorry, I had trouble generating a response."}
+        print("Error:", e)
+        return {"reply": "Sorry, I couldn't generate a reply."}
